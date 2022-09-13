@@ -1,0 +1,90 @@
+---
+这个是本腾创建的一门脚本语言，叫做（YTScript,后缀文件.yt）
+---
+
+-- 这是注释不会被解析
+a = 89 -- 数值类型
+a = "" -- 这个是字符串类型
+a = false -- bool类型
+
+-- 函数默认返回null
+c = fn xx() {
+    return ""
+}
+
+-- 循环
+for i = 0; i <10 ; i++ {
+
+}
+
+-- 增强for循环
+for i,item range 数组,对象,map {
+
+}
+
+
+-- main 方法，一个脚本中有且只有一个main方法
+fn main() {
+
+    -- 使用匿名函数
+    xx(fn(){
+        -- 函数类方法
+    }())
+}
+
+-- data 列表
+
+-- 初始化列表
+data = [
+name | password | age | emil |
+]
+
+-- 初始化列表并填充数据
+data = [[[
+
+name | password | age | emil |
+"yt" , 2002 , 12 , 28322;
+
+]]]
+
+-- 你也可以这样,后添加列表
+data += {
+    public:
+        name = "ui"
+        password = "yt123"
+        emil = 28322
+        -- 你也可以声明一个，默认为空字符串
+        appName : string
+        show() {
+            print(name)
+        }
+    private:
+        see = "不可描述之物"
+
+}
+
+-- 删除一个
+data--
+-- 指定删除
+data -= 1,2,3,4
+data -= ...[1,2,4,5]
+
+-- 面向对象
+obj = {
+    -- 初始化函数
+    init() {
+
+    }
+    public:
+        name = "ui"
+        password = "yt123"
+        emil = 28322
+        -- 你也可以声明一个，默认为空字符串
+        appName : string
+        show() {
+            print(name)
+        }
+    private:
+        see = "不可描述之物"
+
+}
