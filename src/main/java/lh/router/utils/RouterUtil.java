@@ -1,10 +1,12 @@
-package lh.router.util;
+package lh.router.utils;
 
 import cn.hutool.core.util.ReUtil;
 import lh.router.annotation.FXRoute;
-import lh.router.entity.FxRouteBean;
+import lh.router.entity.Route;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 路由组件的工具类
@@ -14,7 +16,7 @@ public class RouterUtil {
     /**
      * 判断是否为单层路由
      */
-    public static Boolean isSimpleRoutePath(FxRouteBean path) {
+    public static Boolean isSimpleRoutePath(Route path) {
 
         return ReUtil.count("/",path.getFxRoute().value()) == 1;
     }
@@ -35,17 +37,26 @@ public class RouterUtil {
     /**
      * 判断一共有多少个 / 符号
      */
-    public static Integer sumPathSymbol(FxRouteBean path) {
+    public static Integer sumPathSymbol(Route path) {
         return ReUtil.count("/",path.getFxRoute().value());
     }
 
     /**
      * 根据传入的字符串,解析顶层路由和子路由
      */
-    public static ArrayList<String> paths() {
-
-        return null;
+    public static List<String> paths(String path) {
+        // 根据/符号解析路由
+        String[] routeArr = path.split("/");
+        return Arrays.stream(routeArr)
+                .filter(s -> !s.isEmpty())
+                .map(s->"/"+s)
+                .collect(Collectors.toList());
     }
 
-
+    /**
+     * 去掉最开始的路径
+     */
+    public static String delStartPath(String path) {
+        return path.substring(path.indexOf("/", 1));
+    }
 }

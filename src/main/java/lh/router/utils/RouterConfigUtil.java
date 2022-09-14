@@ -1,4 +1,4 @@
-package lh.router.util;
+package lh.router.utils;
 
 public class RouterConfigUtil {
 }

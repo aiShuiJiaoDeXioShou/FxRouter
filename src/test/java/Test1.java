@@ -3,12 +3,12 @@ import cn.hutool.core.util.ReUtil;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
 import lh.router.annotation.FXRoute;
+import lh.router.utils.RouterUtil;
 import lh.utils.ClassRootUtil;
-import org.junit.Test;
 import lh.utils.FileUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -73,4 +73,27 @@ public class Test1 {
         System.out.println(size);
     }
 
+    @Test
+    public void Test8() {
+        RouterUtil.paths("/sfdf/fsdf/tewrt/qewq").forEach(System.out::println);
+    }
+
+    @Test
+    public void Test9() {
+        String path = "/iu/op";
+        String substring = path.substring(path.indexOf("/", 1));
+        System.out.println(substring);
+    }
+
+
+    @Test
+    public void Test10() {
+        List<String> father = new ArrayList<>();
+        father.add("sdfsdfsl");
+        father.add("sdfs");
+        father.add("sdfssdf");
+        father.add("sd");
+        father.sort((o1, o2) -> o1.length() > o2.length() ? -1 : 0);
+        System.out.println(father);
+    }
 }

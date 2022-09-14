@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lh.router.Router;
 
-import java.util.List;
 import java.util.Set;
 
 public class NoteBookApp extends Application {
@@ -13,10 +12,6 @@ public class NoteBookApp extends Application {
     public static Stage primaryStage;
 
     public static Router router;
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -26,6 +21,7 @@ public class NoteBookApp extends Application {
         primaryStage.setWidth(1000);
         primaryStage.setHeight(800);
         router = new Router("lh.view", primaryStage);
+        router.getRoutePaths().forEach(System.out::println);
         primaryStage.show();
     }
 }
