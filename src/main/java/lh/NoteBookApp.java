@@ -3,15 +3,14 @@ package lh;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import lh.router.IRouter;
 import lh.router.Router;
-
-import java.util.Set;
 
 public class NoteBookApp extends Application {
 
     public static Stage primaryStage;
 
-    public static Router router;
+    public static IRouter router;
 
     @Override
     public void start(Stage primaryStage) {

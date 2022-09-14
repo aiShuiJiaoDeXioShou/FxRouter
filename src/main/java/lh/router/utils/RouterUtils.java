@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 /**
  * 路由组件的工具类
  */
-public class RouterUtil {
+public class RouterUtils {
 
     /**
      * 判断是否为单层路由
      */
     public static Boolean isSimpleRoutePath(Route path) {
 
-        return ReUtil.count("/",path.getFxRoute().value()) == 1;
+        return ReUtil.count("/", path.getFxRoute().value()) == 1;
     }
 
 
@@ -49,7 +49,7 @@ public class RouterUtil {
         String[] routeArr = path.split("/");
         return Arrays.stream(routeArr)
                 .filter(s -> !s.isEmpty())
-                .map(s->"/"+s)
+                .map(s -> "/" + s)
                 .collect(Collectors.toList());
     }
 
@@ -59,4 +59,34 @@ public class RouterUtil {
     public static String delStartPath(String path) {
         return path.substring(path.indexOf("/", 1));
     }
+
+
+    /**
+     * 对路由路径实例化顺序进行排序
+     */
+    public static List<Route> sortRoutePath(List<Route> routeList) {
+
+        // 判断该路由是一级路由还是二级路由
+        // 一路由优先放置
+        routeList.sort((r1, r2) -> {
+
+            if (RouterUtils.isSimpleRoutePath(r1)) {
+                return 1;
+            } else {
+                int ex = RouterUtils.sumPathSymbol(r1) - RouterUtils.sumPathSymbol(r2);
+                return ex > 0 ? 1 : -1;
+            }
+
+        });
+
+        return routeList;
+    }
+
+    /**
+     * 获取指定类，指定注解的方法，并在方法前实现切面 <br/>
+     */
+    public static void section(Class<?> clazz) {
+
+    }
+
 }

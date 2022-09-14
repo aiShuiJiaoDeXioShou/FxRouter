@@ -3,8 +3,9 @@ import cn.hutool.core.util.ReUtil;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
 import lh.router.annotation.FXRoute;
-import lh.router.utils.RouterUtil;
+import lh.router.utils.RouterUtils;
 import lh.utils.ClassRootUtil;
+import lh.utils.CurrentLineInfo;
 import lh.utils.FileUtil;
 import org.junit.jupiter.api.Test;
 
@@ -75,7 +76,7 @@ public class Test1 {
 
     @Test
     public void Test8() {
-        RouterUtil.paths("/sfdf/fsdf/tewrt/qewq").forEach(System.out::println);
+        RouterUtils.paths("/sfdf/fsdf/tewrt/qewq").forEach(System.out::println);
     }
 
     @Test
@@ -95,5 +96,11 @@ public class Test1 {
         father.add("sd");
         father.sort((o1, o2) -> o1.length() > o2.length() ? -1 : 0);
         System.out.println(father);
+    }
+
+    @Test
+    public void Test11() {
+        String className = CurrentLineInfo.getClassName();
+        System.out.println(className);
     }
 }
