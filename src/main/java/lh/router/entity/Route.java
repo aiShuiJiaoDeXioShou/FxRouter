@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -59,4 +60,23 @@ public class Route {
      */
     private List<String> childList;
 
+    /**
+     * 上一级父类路由
+     */
+    private Route fatherRoute;
+
+    /**
+     * 查询路径参数
+     */
+    private HashMap<String, Object> query;
+
+    /**
+     * 传参参数
+     */
+    private Object params;
+
+    /**
+     * mate
+     */
+    private HashMap<String, Object> mate;
 }

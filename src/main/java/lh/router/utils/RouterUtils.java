@@ -3,7 +3,10 @@ package lh.router.utils;
 import cn.hutool.core.util.ReUtil;
 import lh.router.annotation.FXRoute;
 import lh.router.entity.Route;
+import lh.router.fn.InvokeFunction;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,9 +86,50 @@ public class RouterUtils {
     }
 
     /**
-     * 获取指定类，指定注解的方法，并在方法前实现切面 <br/>
+     * 通过反射调用指定名称的方法
      */
-    public static void section(Class<?> clazz) {
+    public static void patchMethod(String name, Object entity) {
+        Class<?> aClass = entity.getClass();
+        try {
+            Method declaredMethod = aClass.getMethod(name);
+            declaredMethod.setAccessible(true);
+            declaredMethod.invoke(entity);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            // 如果接收到错误了说明，该组件没有init函数
+        }
+    }
+
+    /**
+     * 获取指定类，指定注解的方法，并在方法前实现切面 <br/>
+     *
+     * @param annotation 指定注解
+     * @param obj        该类的实例化对象
+     * @param args       该方法的传参
+     */
+    public static void section(
+            Object obj,
+            Class annotation,
+            Object[] args,
+            InvokeFunction... invoke) {
+
+        Method[] methods = obj.getClass().getMethods();
+        Arrays.stream(methods)
+                .peek(method -> method.setAccessible(true))
+                .filter(method -> method.getAnnotation(annotation) != null)
+                .toList()
+                .stream()
+                .peek(method -> {
+                    try {
+                        // 在这些函数前执行，一些特定的函数
+                        for (InvokeFunction function : invoke) {
+                            function.Invoke();
+                        }
+                        method.invoke(obj, args);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
 
     }
 

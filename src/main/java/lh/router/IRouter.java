@@ -48,7 +48,7 @@ public interface IRouter {
      *
      * @param path 路由地址
      */
-    void toRoute(String path);
+    Router to(String path);
 
     /**
      * 获取路由的历史记录
@@ -56,13 +56,8 @@ public interface IRouter {
     List<String> history();
 
     /**
-     * 获取上一个路由说传递的参数
-     */
-    <T> T acceptPackage();
-
-    /**
      * 将指定数据传递给下一个路由，并跳转到指定位置
      */
-    <T> void sendPackage(T data);
+    Router sendPackage(Object data);
 
 }

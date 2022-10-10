@@ -3,14 +3,13 @@ package lh;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import lh.router.IRouter;
 import lh.router.Router;
 
 public class NoteBookApp extends Application {
 
     public static Stage primaryStage;
 
-    public static IRouter router;
+    public static Router router;
 
     @Override
     public void start(Stage primaryStage) {
@@ -20,7 +19,7 @@ public class NoteBookApp extends Application {
         primaryStage.setWidth(1000);
         primaryStage.setHeight(800);
         router = new Router("lh.view", primaryStage);
-        router.getRoutePaths().forEach(System.out::println);
+        router.config().patchCatch(() -> System.out.println("没有该路径哦！"));
         primaryStage.show();
     }
 }

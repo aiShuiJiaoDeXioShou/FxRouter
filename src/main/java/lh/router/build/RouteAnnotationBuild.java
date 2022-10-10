@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * 此类为Router组的构造抽象类，不可被实例化
  * 用于使用注解构造Router
  */
-public class RouterAnnotationBuild {
+public class RouteAnnotationBuild {
 
 
     private static List<Route> routes = new ArrayList<>();
@@ -27,7 +27,7 @@ public class RouterAnnotationBuild {
      */
     private String basePackagePath = CurrentLineInfo.getClassName();
 
-    public RouterAnnotationBuild(String basePackagePath) {
+    public RouteAnnotationBuild(String basePackagePath) {
         this.basePackagePath = basePackagePath;
     }
 
@@ -40,7 +40,7 @@ public class RouterAnnotationBuild {
      *
      * @return List<Roue>
      */
-    public RouterAnnotationBuild create() {
+    public RouteAnnotationBuild create() {
         // 包含了该包下以及该子包下所有的类
         Set<Class<?>> classSet = ClassUtil.scanPackage(basePackagePath);
         for (Class<?> clazz : classSet) {

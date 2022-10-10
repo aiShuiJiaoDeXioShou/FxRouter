@@ -6,9 +6,11 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import lh.router.entity.Config;
 import lh.router.entity.Route;
+import lh.router.utils.RouteCreateFactory;
 import lh.router.utils.RouterConfigUtil;
-import lh.router.utils.RouterCreateFactory;
+import lh.router.utils.RouterUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -32,6 +34,38 @@ public class Router implements IRouter {
      */
     private final static RouterView root = new RouterView();
 
+    private final Config config = new Config(this);
+    /**
+     * 路由的历史记录
+     */
+    List<String> history = new ArrayList<>();
+
+
+    /**
+     * @param basePackagePath 你要扫描的包路径，简单了来说就是你的页面路径
+     * @param stage           这个不用我写了吧
+     */
+    public Router(String basePackagePath, Stage stage) {
+
+        // 初始化所有的路由,使用路由构造工厂
+        List<Route> routeList = RouteCreateFactory
+                .build(basePackagePath)
+                .create()
+                .getRoutes();
+
+        // 序列化原始路由
+        this.serialization(routeList, myRouters);
+
+        // 初始化一块干净的画布
+        stage.setScene(new Scene(root));
+
+        if (Objects.isNull(isRoute("/")))
+            throw new RuntimeException("必须要指定一个主路由！！！\n指定一个组件的路由地址为’/‘");
+
+        // 默认路由路径为/为主路由
+        to("/");
+    }
+
     /**
      * 当前的路由地址, 初始化地址为/
      *
@@ -51,25 +85,8 @@ public class Router implements IRouter {
         // TODO
     }
 
-    public Router(String basePackagePath, Stage stage) {
-
-        // 初始化所有的路由,使用路由构造工厂
-        List<Route> routeList = RouterCreateFactory
-                .build(basePackagePath)
-                .create()
-                .getRoutes();
-
-        // 序列化原始路由
-        this.serialization(routeList, myRouters);
-
-        // 初始化一块干净的画布
-        stage.setScene(new Scene(root));
-
-        if (Objects.isNull(isRoute("/")))
-            throw new RuntimeException("必须要指定一个主路由！！！\n指定一个组件的路由地址为’/‘");
-
-        // 默认路由路径为/为主路由
-        toRoute("/");
+    public Config config() {
+        return config;
     }
 
 
@@ -81,6 +98,7 @@ public class Router implements IRouter {
     public Route getPreRouter() {
         return myRouters.get(prePath);
     }
+
 
     /**
      * 获取现在的路由
@@ -103,40 +121,75 @@ public class Router implements IRouter {
      *
      * @param path 路由地址
      */
-    public void toRoute(String path) {
+    public Router to(String path) {
         this.prePath = nowPath;
-        this.nowPath = path;
-        Route route = myRouters.get(path);
-        if (Objects.isNull(route)) throw new RuntimeException("没有该对应路径目标路由");
+        int queryIndex = path.indexOf("?");
+        if (queryIndex != -1) this.nowPath = path.substring(0, queryIndex);
+        else this.nowPath = path;
+        Route route = myRouters.get(this.nowPath);
+        // 如果没有该路由则执行以下方法
+        if (Objects.isNull(route)) {
+            if (Objects.isNull(config.Catch)) return this;
+            config.Catch.Invoke();
+            return this;
+        }
+
+        // 如果有路由判断过滤器条件是否满足
+        boolean b = config.invokeInterceptors();
+        if (!b) return this;
+
+        // 记住路由的历史
+        history.add(this.nowPath);
+
+        // 解析路由的路径传参
+        this.parseRouteQuery(path);
 
         // 判断是否符合根路由条件,如果符合根路由条件则直接调用root切换页面
-        // 获取前路由里面是否含有@Router
-        List<Pane> panes = myRouters.get(prePath).getRouter();
+        // 获取父路由里面是否含有@Router
+        List<Pane> panes = null;
+        Route fatherRouter = this.getNowRoute().getFatherRoute();
+        if (fatherRouter != null) panes = fatherRouter.getRouter();
+
         // 如果有就进行下一步,没有直接跳过
         if (panes != null)
-            if (panes.size() > 0 && !path.equals("/") && myRouters.get(prePath).getChildList().contains(path)) {
-                toChildrenRouter(myRouters.get(prePath), path);
-                return;
+            if (panes.size() > 0 && !this.nowPath.equals("/") && fatherRouter.getChildList().contains(this.nowPath)) {
+                // 调用初始化函数刷新界面
+                RouterUtils.patchMethod("init", getNowRoute().getNode());
+                toChildrenRouter(fatherRouter, this.nowPath);
+                return this;
             }
 
+        // 调用初始化函数刷新界面
+        RouterUtils.patchMethod("init", this.getNowRoute().getNode());
         this.setNowRootNode(route.getNode());
+        return this;
     }
 
     @Override
     public List<String> history() {
-        // TODO
-        return null;
+        return this.history;
     }
 
     @Override
-    public <T> T acceptPackage() {
-        // TODO
-        return null;
+    public Router sendPackage(Object data) {
+        this.getNowRoute().setParams(data);
+        return this;
     }
 
-    @Override
-    public <T> void sendPackage(T data) {
-        // TODO
+    /**
+     * 解析路径变量，获取query传参
+     */
+    private void parseRouteQuery(String path) {
+        int i = path.indexOf("?");
+        if (i == -1) return;
+        HashMap<String, Object> query = new HashMap<>();
+        String substring = path.substring(i + 1);
+        String[] strings = substring.split("&");
+        for (String string : strings) {
+            String[] split = string.split("=");
+            query.put(split[0], split[1]);
+        }
+        this.getNowRoute().setQuery(query);
     }
 
     /**
@@ -159,7 +212,7 @@ public class Router implements IRouter {
      * 跳转到上一个路由路径
      */
     public void pre() {
-        toRoute(Objects.requireNonNullElse(prePath, "/"));
+        to(Objects.requireNonNullElse(prePath, "/"));
     }
 
 
@@ -190,8 +243,11 @@ public class Router implements IRouter {
         // 装配
         routeList.forEach(fr -> mapRouters.put(fr.getPath(), fr));
         mapRouters.forEach((key, route) -> {
+            // 获取它的所有子路由
             List<String> toChildren = this.getRouteToChildren(key);
             route.setChildList(toChildren);
+            // 获取上一级路由
+            route.setFatherRoute(isNowChild(key));
         });
         return this;
     }
@@ -204,7 +260,7 @@ public class Router implements IRouter {
         Set<String> routePaths = getRoutePaths();
         List<String> father = new ArrayList<>();
         for (String routePath : routePaths) {
-            if (path.contains(routePath)) {
+            if (path.contains(routePath) && !path.equals(routePath)) {
                 father.add(routePath);
             }
         }

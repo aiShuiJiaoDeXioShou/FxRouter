@@ -46,19 +46,21 @@ public class HomeView extends HBox {
         Button button4 = new Button("/re");
         Button button5 = new Button("/pre");
         button.setOnMouseClicked(event -> {
-            NoteBookApp.router.toRoute("/login");
+            NoteBookApp.router.to("/login");
         });
-        button.setOnMouseClicked(event -> {
-            NoteBookApp.router.toRoute("/page1");
+        button1.setOnMouseClicked(event -> {
+            NoteBookApp.router
+                    .sendPackage("你好世界")
+                    .to("/page1?index=1&nis=yt");
         });
         button2.setOnMouseClicked(event -> {
-            NoteBookApp.router.toRoute("login");
+            NoteBookApp.router.to("login");
         });
         button3.setOnMouseClicked(event -> {
-            NoteBookApp.router.toRoute("/page");
+            NoteBookApp.router.to("/page");
         });
         button4.setOnMouseClicked(event -> {
-            NoteBookApp.router.toRoute("/re");
+            NoteBookApp.router.to("/re");
         });
         button5.setOnMouseClicked(event -> {
             NoteBookApp.router.pre();
